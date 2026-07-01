@@ -14,6 +14,7 @@ class LoginApiController extends Controller
     // Send OTP
     public function sendOtp(Request $request)
     {
+            dd('API HIT WORKING');
         $validator = Validator::make($request->all(), [
             'phone' => 'required|digits:10',
            
