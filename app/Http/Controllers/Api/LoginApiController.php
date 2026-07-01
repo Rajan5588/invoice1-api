@@ -12,34 +12,53 @@ use App\Models\Otp;
 class LoginApiController extends Controller
 {
     // Send OTP
-    public function sendOtp(Request $request)
-    {
-            dd('API HIT WORKING');
+   public function sendOtp(Request $request)
+{
+    try {
+
+        // Validate input
         $validator = Validator::make($request->all(), [
             'phone' => 'required|digits:10',
-           
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 422);
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation error',
+                'error' => $validator->errors()
+            ], 422);
         }
 
-        $otpCode = 1234;
+        // Generate OTP
+        $otpCode = rand(1000, 9999);
         $expiresAt = Carbon::now()->addMinutes(5);
 
+        // Save OTP (safe update/insert)
         Otp::updateOrCreate(
             ['phone' => $request->phone],
-            
-            ['otp' => $otpCode, 'expires_at' => $expiresAt]
+            [
+                'otp' => $otpCode,
+                'expires_at' => $expiresAt
+            ]
         );
 
-        // You can integrate SMS API here to send OTP
-        // For demo, just return the OTP
         return response()->json([
+            'status' => true,
             'message' => 'OTP sent successfully',
-            'otp' => $otpCode // Remove in production
+            'otp' => $otpCode, // remove in production
+            'expires_in' => 300
         ]);
+
+    } catch (\Exception $e) {
+
+        // 👇 THIS IS IMPORTANT (Railway debugging)
+        return response()->json([
+            'status' => false,
+            'message' => 'Server error',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
 
     // Verify OTP
     // public function verifyOtp(Request $request)
