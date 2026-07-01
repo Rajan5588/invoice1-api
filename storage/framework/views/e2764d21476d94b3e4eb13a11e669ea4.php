@@ -1,0 +1,1 @@
+<?php /**PATH /home2/acttconnect/new-invoice.acttconnect.com/resources/views/admin/invoices/show.blade.php ENDPATH**/ ?>
