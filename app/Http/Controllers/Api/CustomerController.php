@@ -28,8 +28,8 @@ class CustomerController extends Controller
             'gst_treatment' => 'nullable|string|max:50',
             'place_of_supply' => 'nullable|string|max:100',
             'state' => 'nullable|string|max:100',
-            'user_id' => 'required|exists:users,id',
-             'company_code' => 'nullable|string'                      
+            'user_id' => 'required|exists:users,id'
+                              
         ]);
 
         if ($validator->fails()) {
@@ -97,8 +97,8 @@ class CustomerController extends Controller
             'gst_treatment' => 'nullable|string|max:50',
             'place_of_supply' => 'nullable|string|max:100',
             'state' => 'nullable|string|max:100',
-            'user_id' => 'sometimes|required|exists:users,id',
-             'company_code' => 'nullable|string',                        
+            'user_id' => 'sometimes|required|exists:users,id'
+                                  
         ]);
 
         if ($validator->fails()) {
