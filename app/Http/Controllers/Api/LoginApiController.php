@@ -148,47 +148,71 @@ class LoginApiController extends Controller
 
 public function verifyOtp(Request $request)
 {
-    $validator = Validator::make($request->all(), [
-        'phone' => 'required|digits:10',
-        'otp' => 'required|digits:4',
-        'fcm_token' => 'required'
-    ]);
+    try {
 
-    if ($validator->fails()) {
-        return response()->json(['error' => $validator->errors()], 422);
+        // Validate Request
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required|digits:10',
+            'otp' => 'required|digits:4',
+            'fcm_token' => 'required|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // Check OTP
+        $otpData = Otp::where('phone', $request->phone)
+            ->where('otp', $request->otp)
+            ->where('expires_at', '>', now())
+            ->first();
+
+        if (!$otpData) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid or expired OTP'
+            ], 401);
+        }
+
+        // Find or Create User
+        $user = User::firstOrCreate(
+            ['phone' => $request->phone],
+            [
+                'name' => 'User_' . rand(1000, 9999)
+            ]
+        );
+
+        // Update User
+        $user->fcm_token = $request->fcm_token;
+        $user->otp_verified = true;
+        $user->save();
+
+        // Delete OTP
+        $otpData->delete();
+
+        // Load subscription if exists
+        $user->load('subscription');
+
+        return response()->json([
+            'status' => true,
+            'message' => 'OTP verified successfully',
+            'user_info' => $user
+        ]);
+
+    } catch (\Exception $e) {
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Server Error',
+            'error' => $e->getMessage(),
+            'line' => $e->getLine(),
+            'file' => basename($e->getFile())
+        ], 500);
     }
-
-    $otpData = Otp::where('phone', $request->phone)
-        ->where('otp', $request->otp)
-        ->where('expires_at', '>', Carbon::now())
-        ->first();
-
-    if (!$otpData) {
-        return response()->json(['error' => 'Invalid or expired OTP'], 401);
-    }
-
-    // Find or create the user
-    $user = User::firstOrCreate(
-        ['phone' => $request->phone],
-        ['name' => 'User_' . rand(1000, 9999)] // default name if new
-    );
-
-    // ✅ Always update FCM token
-    $user->fcm_token = $request->fcm_token;
-
-    // ✅ Mark user as verified
-    $user->otp_verified = true; 
-
-    $user->save();
-
-    // Delete OTP
-    $otpData->delete();
-    $user->load('subscription');
-
-    return response()->json([
-        'message' => 'OTP verified',
-        'user_info' => $user
-    ]);
 }
 
 
