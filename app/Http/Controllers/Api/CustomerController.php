@@ -53,8 +53,8 @@ class CustomerController extends Controller
 
     public function showbyuser(Request $request)
     {
-        $userId = $request->query('user_id');
-        if (!$userId) {
+        $id = $request->user_id;
+        if (!$Id) {
             return response()->json([
                 'status' => false,
                 'message' => 'user_id is required'
@@ -62,7 +62,7 @@ class CustomerController extends Controller
         }
 
         try {
-            $customers = Customer::where('user_id', $userId)->get();
+            $customers = Customer::where('user_id', $Id)->get();
 
             if ($customers->isEmpty()) {
                 return response()->json([
