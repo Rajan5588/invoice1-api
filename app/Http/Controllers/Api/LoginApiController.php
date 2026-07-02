@@ -160,7 +160,7 @@ public function verifyOtp(Request $request)
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
-                'message' => 'Validation failed',
+                'message' => 'Validation Error',
                 'errors' => $validator->errors()
             ], 422);
         }
@@ -168,42 +168,46 @@ public function verifyOtp(Request $request)
         // Check OTP
         $otpData = Otp::where('phone', $request->phone)
             ->where('otp', $request->otp)
-            ->where('expires_at', '>', now())
+            ->where('expires_at', '>', Carbon::now())
             ->first();
 
         if (!$otpData) {
             return response()->json([
                 'status' => false,
-                'message' => 'Invalid or expired OTP'
+                'message' => 'Invalid or Expired OTP'
             ], 401);
         }
 
-        // Find or Create User
-        $user = User::firstOrCreate(
-            ['phone' => $request->phone],
+        // Create or Update User
+        $user = User::updateOrCreate(
             [
-                'name' => 'User_' . rand(1000, 9999)
+                'phone' => $request->phone
+            ],
+            [
+                'name' => 'User_' . rand(1000, 9999),
+                'email' => $request->phone . '@temp.com',
+                'password' => Hash::make('12345678'),
+                'avatar' => 'default.png',
+                'fcm_token' => $request->fcm_token,
+                'otp_verified' => true,
             ]
         );
-
-        // Update User
-        $user->fcm_token = $request->fcm_token;
-        $user->otp_verified = true;
-        $user->save();
 
         // Delete OTP
         $otpData->delete();
 
-        // Load subscription if exists
-        $user->load('subscription');
+        // Load Subscription (if exists)
+        if (!empty($user->subs_id)) {
+            $user->load('subscription');
+        }
 
         return response()->json([
             'status' => true,
-            'message' => 'OTP verified successfully',
+            'message' => 'OTP Verified Successfully',
             'user_info' => $user
-        ]);
+        ], 200);
 
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
 
         return response()->json([
             'status' => false,

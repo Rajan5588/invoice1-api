@@ -22,6 +22,7 @@ class User extends Authenticatable
         'phone',
         'avatar',
         'fcm_token',
+        'otp_verified', 
         'subs_id',         
         'subs_expired_date' ,
         'company_code',
