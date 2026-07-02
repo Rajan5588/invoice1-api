@@ -53,25 +53,15 @@ class CustomerController extends Controller
 
     public function showbyuser(Request $request)
     {
-        $id = $request->user_id;
-        if (!$Id) {
-            return response()->json([
-                'status' => false,
-                'message' => 'user_id is required'
-            ], 400);
-        }
-
         try {
-            $customers = Customer::where('user_id', $Id)->get();
+        $id = $request->user_id;
 
-            if ($customers->isEmpty()) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'No customers found for this user'
-                ], 404);
-            }
+        $category = Customer::where('user_id', $id)->get();
 
-            return response()->json(['status' => true, 'data' => $customers], 200);
+        return response()->json([
+            'status' => true,
+            'data' => $category
+        ], 200);
         } catch (Exception $e) {
             return response()->json([
                 'status' => false,
