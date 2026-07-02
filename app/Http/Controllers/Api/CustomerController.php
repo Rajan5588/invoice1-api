@@ -29,6 +29,7 @@ class CustomerController extends Controller
             'place_of_supply' => 'nullable|string|max:100',
             'state' => 'nullable|string|max:100',
             'user_id' => 'required|exists:users,id',
+             'company_code' => 'nullable|string'                      
         ]);
 
         if ($validator->fails()) {
@@ -97,6 +98,7 @@ class CustomerController extends Controller
             'place_of_supply' => 'nullable|string|max:100',
             'state' => 'nullable|string|max:100',
             'user_id' => 'sometimes|required|exists:users,id',
+             'company_code' => 'nullable|string',                        
         ]);
 
         if ($validator->fails()) {
