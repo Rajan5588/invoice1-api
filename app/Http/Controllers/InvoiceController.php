@@ -636,7 +636,7 @@ public function update($company_slug,Request $request, $id)
     return redirect()->route('invoices.index')->with('success', 'Invoice updated successfully!');
 }
 
-public function destroy($company_slug,Request $request)
+public function destroy(Request $request)
 {
     $id     = $request->query('id');
   
