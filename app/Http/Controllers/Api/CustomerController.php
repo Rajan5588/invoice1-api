@@ -28,7 +28,8 @@ class CustomerController extends Controller
             'gst_treatment' => 'nullable|string|max:50',
             'place_of_supply' => 'nullable|string|max:100',
             'state' => 'nullable|string|max:100',
-            'user_id' => 'required|exists:users,id',
+            'user_id' => 'required|exists:users,id'
+                              
         ]);
 
         if ($validator->fails()) {
@@ -52,25 +53,15 @@ class CustomerController extends Controller
 
     public function showbyuser(Request $request)
     {
-        $userId = $request->query('user_id');
-        if (!$userId) {
-            return response()->json([
-                'status' => false,
-                'message' => 'user_id is required'
-            ], 400);
-        }
-
         try {
-            $customers = Customer::where('user_id', $userId)->get();
+        $id = $request->user_id;
 
-            if ($customers->isEmpty()) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'No customers found for this user'
-                ], 404);
-            }
+        $category = Customer::where('user_id', $id)->get();
 
-            return response()->json(['status' => true, 'data' => $customers], 200);
+        return response()->json([
+            'status' => true,
+            'data' => $category
+        ], 200);
         } catch (Exception $e) {
             return response()->json([
                 'status' => false,
@@ -96,7 +87,8 @@ class CustomerController extends Controller
             'gst_treatment' => 'nullable|string|max:50',
             'place_of_supply' => 'nullable|string|max:100',
             'state' => 'nullable|string|max:100',
-            'user_id' => 'sometimes|required|exists:users,id',
+            'user_id' => 'sometimes|required|exists:users,id'
+                                  
         ]);
 
         if ($validator->fails()) {
