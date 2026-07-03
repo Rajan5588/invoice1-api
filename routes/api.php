@@ -38,11 +38,20 @@ use App\Http\Controllers\CouponController;
 
 
 
+Route::get('/test', function () {
+    return response()->json([
+        'status' => true,
+        'message' => 'API Working'
+    ]);
+});
+
 
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+
 
 
 Route::get('/test-fcm', function () {

@@ -195,8 +195,8 @@ class InvoiceController extends Controller
 
 public function destroy(Request $request)
 {
-    $id = $request->query('id');
-    $action = $request->query('action'); // permanent_destroy, temporary_destroy, restore
+  $id = $request->input('id');
+$action = $request->input('action'); // permanent_destroy, temporary_destroy, restore
 
     $invoice = Invoice::find($id);
 

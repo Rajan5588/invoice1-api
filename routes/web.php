@@ -23,6 +23,12 @@ use App\Http\Controllers\ExpenseController;
 
 
 Auth::routes();
+Route::get('/apitest', function () {
+    return response()->json([
+        'status' => true,
+        'message' => 'JSON Working'
+    ]);
+});
 
 Route::middleware(['auth', 'company.prefix'])
     ->prefix('{company_slug}')
