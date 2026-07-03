@@ -193,62 +193,120 @@ class InvoiceController extends Controller
     return response()->json(['message' => 'Invoice updated successfully', 'data' => $invoice]);
 }
 
+
+
 public function destroy(Request $request)
 {
-  $id = $request->input('id');
-$action = $request->input('action'); // permanent_destroy, temporary_destroy, restore
+    try {
+        // ✅ accept both JSON body + query param (flexible for Postman / frontend)
+        $id = $request->input('id') ?? $request->query('id');
+        $action = $request->input('action') ?? $request->query('action');
 
-    $invoice = Invoice::find($id);
+        // 🔴 validation
+        if (!$id) {
+            return response()->json([
+                'message' => 'Invoice ID is required'
+            ], 422);
+        }
 
-    if (!$invoice) {
-        return response()->json(['message' => 'Invoice not found'], 404);
-    }
+        if (!$action) {
+            return response()->json([
+                'message' => 'Action is required (temporary_destroy / permanent_destroy / restore)'
+            ], 422);
+        }
 
-    $user = User::find($invoice->user_id);
+        // 🔍 find invoice
+        $invoice = Invoice::with(['items', 'charges', 'transactions'])
+            ->where('id', $id)
+            ->first();
 
-    if ($action === 'permanent_destroy') {
-        $invoice->delete();
+        if (!$invoice) {
+            return response()->json([
+                'message' => 'Invoice not found',
+                'debug_id' => $id,
+                'available_ids' => Invoice::pluck('id')
+            ], 404);
+        }
 
-        if ($user) {
-            $description = $user->name . ' permanently deleted invoice #' . $id . ' on ' . now()->toDateTimeString();
-            History::create([
-                'user_id' => $user->id,
-                'description' => $description
+        $user = auth()->user(); // safer than Auth::user()
+
+        // =========================
+        // 🔥 PERMANENT DELETE
+        // =========================
+        if ($action === 'permanent_destroy') {
+
+            DB::transaction(function () use ($invoice) {
+                $invoice->items()->delete();
+                $invoice->charges()->delete();
+                $invoice->transactions()->delete();
+                $invoice->delete();
+            });
+
+            if ($user) {
+                History::create([
+                    'user_id' => $user->id,
+                    'description' => $user->name . " permanently deleted invoice #{$id}"
+                ]);
+            }
+
+            return response()->json([
+                'message' => 'Invoice permanently deleted'
             ]);
         }
 
-        return response()->json(['message' => 'Invoice permanently deleted']);
-    }
+        // =========================
+        // 🟡 TEMPORARY DELETE
+        // =========================
+        if ($action === 'temporary_destroy') {
 
-    if ($action === 'temporary_destroy') {
-        $invoice->recycle_status = 'temporary_destroy';
-        $invoice->save();
+            $invoice->update([
+                'recycle_status' => 'temporary_destroy'
+            ]);
 
-        if ($user) {
-            History::create([
-                'user_id' => $user->id,
-                'description' => $user->name . ' temporarily deleted invoice #' . $id
+            if ($user) {
+                History::create([
+                    'user_id' => $user->id,
+                    'description' => $user->name . " temporarily deleted invoice #{$id}"
+                ]);
+            }
+
+            return response()->json([
+                'message' => 'Invoice temporarily deleted'
             ]);
         }
 
-        return response()->json(['message' => 'Invoice temporarily deleted']);
-    }
+        // =========================
+        // 🟢 RESTORE
+        // =========================
+        if ($action === 'restore') {
 
-    if ($action === 'restore') {
-        $invoice->recycle_status = 'none';
-        $invoice->save();
+            $invoice->update([
+                'recycle_status' => 'none'
+            ]);
 
-        if ($user) {
-            History::create([
-                'user_id' => $user->id,
-                'description' => $user->name . ' restored invoice #' . $id
+            if ($user) {
+                History::create([
+                    'user_id' => $user->id,
+                    'description' => $user->name . " restored invoice #{$id}"
+                ]);
+            }
+
+            return response()->json([
+                'message' => 'Invoice restored'
             ]);
         }
 
-        return response()->json(['message' => 'Invoice restored']);
-    }
+        return response()->json([
+            'message' => 'Invalid action'
+        ], 400);
 
-    return response()->json(['message' => 'Invalid action'], 400);
+    } catch (\Exception $e) {
+
+        return response()->json([
+            'message' => 'Server Error',
+            'error' => $e->getMessage()
+        ], 500);
+    }
 }
 
 
