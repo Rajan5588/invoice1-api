@@ -308,8 +308,4 @@ public function destroy(Request $request)
         ], 500);
     }
 }
-
-
-
-
 }
