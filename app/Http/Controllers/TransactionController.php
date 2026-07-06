@@ -176,16 +176,18 @@ public function changeStatus(Request $request)
     });
 
     // Current week
-    $startOfWeek = Carbon::now()->startOfWeek();
-    $endOfWeek = Carbon::now()->endOfWeek();
+   $startOfWeek = Carbon::now()->startOfWeek();
+$endOfWeek = Carbon::now()->endOfWeek();
 
-    $currentWeekTransactions = $transactions->filter(function ($txn) use ($startOfWeek, $endOfWeek) {
-        return $txn->date >= $startOfWeek->toDateString() && $txn->date <= $endOfWeek->toDateString();
-    });
+$currentWeekTransactions = $transactions->filter(function ($txn) use ($startOfWeek, $endOfWeek) {
+    $txnDate = Carbon::parse($txn->date);
 
-    $currentWeekCollection = $currentWeekTransactions->sum(function ($txn) {
-        return $txn->invoice ? $txn->invoice->total_amount : 0;
-    });
+    return $txnDate->between($startOfWeek, $endOfWeek);
+});
+
+$currentWeekCollection = $currentWeekTransactions->sum(function ($txn) {
+    return $txn->invoice ? $txn->invoice->total_amount : 0;
+});
 
     return response()->json([
         'user_id' => $user_id,
