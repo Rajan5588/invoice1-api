@@ -20,6 +20,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Controllers\Api\SubscribedUserController;
 use App\Http\Controllers\CouponController;
+use App\Http\Controllers\Api\SupplierController;
+use App\Http\Controllers\Api\ExpenseController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -93,6 +96,50 @@ Route::get('/users', [UserController::class, 'getUsers']);
 
 Route::get('/subscriptions', [SubscriptionController::class, 'index']);
 Route::post('/subscribed-user-store', [SubscribedUserController::class, 'store']);
+
+Route::prefix('expenses')->group(function () {
+
+    Route::get('/', [ExpenseController::class, 'index']);
+
+    Route::post('/', [ExpenseController::class, 'store']);
+
+    Route::get('/user/{user_id}', [ExpenseController::class, 'getByUser']);
+
+    Route::get('/{id}', [ExpenseController::class, 'show']);
+
+    Route::post('/update', [ExpenseController::class, 'update']);
+
+    Route::delete('/{id}', [ExpenseController::class, 'destroy']);
+
+    Route::post('/status-change', [ExpenseController::class, 'changeStatus']);
+
+});
+
+
+
+
+
+
+
+
+
+
+Route::prefix('suppliers')->group(function () {
+
+    Route::get('/', [SupplierController::class, 'index']);
+
+    Route::get('/{id}', [SupplierController::class, 'show']);
+
+    Route::post('/', [SupplierController::class, 'store']);
+
+    Route::post('/update', [SupplierController::class, 'update']);
+
+    Route::delete('/{id}', [SupplierController::class, 'destroy']);
+
+});
+
+
+
 
 Route::prefix('transactions')->group(function () {
     Route::get('/', [TransactionController::class, 'index']);

@@ -14,7 +14,7 @@ class HistoryController extends Controller
     public function index()
     {
         $histories = History::with('user')->latest()->get();
-        return response()->json(['data' => $histories, 'message' => 'Histories fetched successfully']);
+        return response()->json(['data' =>  $histories, 'message' => 'Histories fetched successfully']);
     }
 
     /**
