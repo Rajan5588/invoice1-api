@@ -179,19 +179,80 @@ public function verifyOtp(Request $request)
         }
 
         // Create or Update User
-        $user = User::updateOrCreate(
-            [
-                'phone' => $request->phone
-            ],
-            [
-                'name' => 'User_' . rand(1000, 9999),
-                'email' => $request->phone . '@temp.com',
-                'password' => Hash::make('12345678'),
-                'avatar' => 'default.png',
-                'fcm_token' => $request->fcm_token,
-                'otp_verified' => true,
-            ]
-        );
+      //  $user = User::updateOrCreate(
+         //   [
+          //      'phone' => $request->phone
+          //  ],
+          //  [
+           //     'name' => 'User_' . rand(1000, 9999),
+            //    'email' => $request->phone . '@temp.com',
+            //    'password' => Hash::make('12345678'),
+             //   'avatar' => 'default.png',
+             //   'fcm_token' => $request->fcm_token,
+             //   'otp_verified' => true,
+        //    ]
+        //);
+
+
+
+// Find existing user
+$user = User::where('phone', $request->phone)->first();
+
+if (!$user) {
+
+    // Generate next company code
+    $lastCompany = User::whereNotNull('company_code')
+        ->orderBy('id', 'desc')
+        ->first();
+
+    if ($lastCompany && preg_match('/COMP(\d+)/', $lastCompany->company_code, $matches)) {
+        $nextNumber = (int)$matches[1] + 1;
+    } else {
+        $nextNumber = 1;
+    }
+
+    $companyCode = 'COMP' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+
+    // Create new user
+    $user = User::create([
+        'phone' => $request->phone,
+        'name' => 'User_' . rand(1000, 9999),
+        'email' => $request->phone . '@temp.com',
+        'password' => Hash::make('12345678'),
+        'avatar' => 'default.png',
+        'fcm_token' => $request->fcm_token,
+        'otp_verified' => true,
+        'company_code' => $companyCode,
+    ]);
+
+} else {
+
+    // Existing user update
+    $user->fcm_token = $request->fcm_token;
+    $user->otp_verified = true;
+
+    // If old user doesn't have company_code
+    if (empty($user->company_code)) {
+
+        $lastCompany = User::whereNotNull('company_code')
+            ->orderBy('id', 'desc')
+            ->first();
+
+        if ($lastCompany && preg_match('/COMP(\d+)/', $lastCompany->company_code, $matches)) {
+            $nextNumber = (int)$matches[1] + 1;
+        } else {
+            $nextNumber = 1;
+        }
+
+        $user->company_code = 'COMP' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+    }
+
+    $user->save();
+}
+
+
+
+
 
         // Delete OTP
         $otpData->delete();
