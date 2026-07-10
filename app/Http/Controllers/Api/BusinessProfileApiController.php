@@ -63,6 +63,7 @@ public function store(Request $request)
             'business_category' => 'required|string',
             'digital_sign' => 'nullable|image|mimes:jpg,png,jpeg',
             'business_signature' => 'nullable|image|mimes:jpg,png,jpeg',
+            'company_code' => 'required|string|max:50|unique:users,company_code,' . $request->user_id,   // new error ke chance 
         ]);
 
         if ($validator->fails()) {
@@ -93,7 +94,7 @@ public function store(Request $request)
             $businessSign->move(public_path('assets/business_signature'), $businessSignName);
             $business_signature_path = 'assets/business_signature/'.$businessSignName;
         }
-
+$user = User::findOrFail($request->user_id);
         // Create or update profile
         $profile = BusinessProfile::updateOrCreate(
             ['user_id' => $request->user_id], // condition to find existing
@@ -114,6 +115,7 @@ public function store(Request $request)
                  'business_type' => $request->business_type,
                 'website' => $request->website,
                 'business_signature' => $business_signature_path,
+                'company_code' => $user->company_code,
             ]
         );
         
