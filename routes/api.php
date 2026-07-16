@@ -22,7 +22,7 @@ use App\Http\Controllers\Api\SubscribedUserController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\ExpenseController;
-
+use App\Http\Controllers\Api\InvoicePrintSettingController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -119,7 +119,8 @@ Route::prefix('expenses')->group(function () {
 
 
 
-
+Route::get('/invoice-print-settings', [InvoicePrintSettingController::class, 'index']);
+Route::post('/invoice-print-settings', [InvoicePrintSettingController::class, 'store']);
 
 
 
@@ -238,7 +239,7 @@ Route::get('business-profiles', [BusinessProfileApiController::class, 'index']);
 Route::post('business-profiles', [BusinessProfileApiController::class, 'store']);
 Route::delete('business-profiles/{id}', [BusinessProfileApiController::class, 'destroy']);
 
-Route::get('/bill-first-template', [TemplatesController::class, 'getTemplate']);
+Route::get('/bill-first-template/{invoice_id}', [TemplatesController::class, 'getTemplate']);
 
 
 

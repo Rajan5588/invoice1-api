@@ -247,27 +247,28 @@
     <div class="top-note">✍ Thank you for doing business with us</div>
 
     <div class="company-info">
-     @if(!$setting || $setting->print_company_name)
-<h2>{{ $invoice->user->businessProfile->business_name ?? '' }}</h2>
-@endif
+     <?php if(!$setting || $setting->print_company_name): ?>
+<h2><?php echo e($invoice->user->businessProfile->business_name ?? ''); ?></h2>
+<?php endif; ?>
 
-@if(!$setting || $setting->print_address)
-<p>{{ $invoice->user->businessProfile->business_address ?? '' }}</p>
-@endif
+<?php if(!$setting || $setting->print_address): ?>
+<p><?php echo e($invoice->user->businessProfile->business_address ?? ''); ?></p>
+<?php endif; ?>
 
-@if(!$setting || $setting->print_gstin)
+<?php if(!$setting || $setting->print_gstin): ?>
 <p>
-    GSTIN : {{ $invoice->user->businessProfile->gst_no ?? '' }}
+    GSTIN : <?php echo e($invoice->user->businessProfile->gst_no ?? ''); ?>
+
 </p>
-@endif
+<?php endif; ?>
 
-@if(!$setting || $setting->print_phone)
-<p>Phone : {{ $invoice->user->businessProfile->phone_no_first ?? '' }}</p>
-@endif
+<?php if(!$setting || $setting->print_phone): ?>
+<p>Phone : <?php echo e($invoice->user->businessProfile->phone_no_first ?? ''); ?></p>
+<?php endif; ?>
 
-@if(!$setting || $setting->print_email)
-<p>Email : {{ $invoice->user->businessProfile->business_email ?? '' }}</p>
-@endif
+<?php if(!$setting || $setting->print_email): ?>
+<p>Email : <?php echo e($invoice->user->businessProfile->business_email ?? ''); ?></p>
+<?php endif; ?>
     </div>
 
     <div class="tax-title">
@@ -280,15 +281,15 @@
         <table>
           <tr>
             <td><strong>Invoice Number</strong></td>
-            <td>: {{ $invoice->id }}</td>
+            <td>: <?php echo e($invoice->id); ?></td>
           </tr>
           <tr>
             <td><strong>Invoice Date</strong></td>
-          <td>: {{ date('d-m-Y',strtotime($invoice->created_at)) }}</td>
+          <td>: <?php echo e(date('d-m-Y',strtotime($invoice->created_at))); ?></td>
           </tr>
           <tr>
             <td><strong>State</strong></td>
-          <td>: {{ $invoice->user->businessProfile->business_state ?? '' }}</td>
+          <td>: <?php echo e($invoice->user->businessProfile->business_state ?? ''); ?></td>
           </tr>
           <tr>
             <td><strong>Reverse Charge</strong></td>
@@ -300,19 +301,19 @@
     <table>
         <tr>
             <td><strong>Customer Name</strong></td>
-            <td>: {{ $invoice->customer_name }}</td>
+            <td>: <?php echo e($invoice->customer_name); ?></td>
         </tr>
         <tr>
             <td><strong>Phone</strong></td>
-            <td>: {{ $invoice->customer_number }}</td>
+            <td>: <?php echo e($invoice->customer_number); ?></td>
         </tr>
         <tr>
             <td><strong>Payment Type</strong></td>
-            <td>: {{ ucfirst($invoice->payment_type) }}</td>
+            <td>: <?php echo e(ucfirst($invoice->payment_type)); ?></td>
         </tr>
         <tr>
             <td><strong>Company Code</strong></td>
-            <td>: {{ $invoice->company_code ?? '-' }}</td>
+            <td>: <?php echo e($invoice->company_code ?? '-'); ?></td>
         </tr>
     </table>
 </div>
@@ -322,20 +323,20 @@
     <div class="address-section">
       <div class="address-box">
         <div class="address-box-title">Details of Receiver | Billed to</div>
-<p><span class="bold">Name:</span> {{ $invoice->customer_name }}</p>
-<p><span class="bold">Address:</span> {{ $invoice->billingDetail->billing_address ?? '' }}</p>
-<p>{{ $invoice->billingDetail->billing_state ?? '' }}</p>
-    <p><span class="bold">GSTIN:</span> {{ $invoice->billingDetail->gstin ?? '' }}</p>
-        <p><span class="bold">State:</span> {{ $invoice->billingDetail->billing_state ?? '' }}</p>
+<p><span class="bold">Name:</span> <?php echo e($invoice->customer_name); ?></p>
+<p><span class="bold">Address:</span> <?php echo e($invoice->billingDetail->billing_address ?? ''); ?></p>
+<p><?php echo e($invoice->billingDetail->billing_state ?? ''); ?></p>
+    <p><span class="bold">GSTIN:</span> <?php echo e($invoice->billingDetail->gstin ?? ''); ?></p>
+        <p><span class="bold">State:</span> <?php echo e($invoice->billingDetail->billing_state ?? ''); ?></p>
       </div>
 
       <div class="address-box">
         <div class="address-box-title">Details of Consignee | Shipped to</div>
-<p><span class="bold">Name:</span> {{ $invoice->shippingDetail->name ?? '' }}</p>
-<p><span class="bold">Address:</span> {{ $invoice->shippingDetail->shipping_address ?? '' }}</p>
- <p>{{ $invoice->shippingDetail->shipping_state ?? '' }}</p>
-    <p><span class="bold">GSTIN:</span> {{ $invoice->shippingDetail->gstin ?? '' }}</p>
-   <p><span class="bold">State:</span> {{ $invoice->shippingDetail->shipping_state ?? '' }}</p>
+<p><span class="bold">Name:</span> <?php echo e($invoice->shippingDetail->name ?? ''); ?></p>
+<p><span class="bold">Address:</span> <?php echo e($invoice->shippingDetail->shipping_address ?? ''); ?></p>
+ <p><?php echo e($invoice->shippingDetail->shipping_state ?? ''); ?></p>
+    <p><span class="bold">GSTIN:</span> <?php echo e($invoice->shippingDetail->gstin ?? ''); ?></p>
+   <p><span class="bold">State:</span> <?php echo e($invoice->shippingDetail->shipping_state ?? ''); ?></p>
       </div>
     </div>
 
@@ -351,27 +352,27 @@
         <th colspan="2">IGST</th>
         <th>Total</th>
       </tr>
-     @foreach($invoice->items as $key => $item)
+     <?php $__currentLoopData = $invoice->items; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 <tr>
-    <td>{{ $key+1 }}</td>
-    <td class="text-left">{{ $item->item->item_name ?? '' }}</td>
-    <td>{{ $item->quantity }}</td>
+    <td><?php echo e($key+1); ?></td>
+    <td class="text-left"><?php echo e($item->item->item_name ?? ''); ?></td>
+    <td><?php echo e($item->quantity); ?></td>
     <td>PCS</td>
-    <td>{{ $item->price }}</td>
-    <td>{{ $item->total }}</td>
+    <td><?php echo e($item->price); ?></td>
+    <td><?php echo e($item->total); ?></td>
     <td>0%</td>
     <td>0</td>
-    <td>{{ $item->total }}</td>
+    <td><?php echo e($item->total); ?></td>
 </tr>
-@endforeach
+<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
      <tr>
     <td colspan="2"><strong>Total</strong></td>
-    <td>{{ $invoice->items->sum('quantity') }}</td>
+    <td><?php echo e($invoice->items->sum('quantity')); ?></td>
     <td colspan="2"></td>
-    <td class="highlight">₹ {{ number_format($invoice->total_amount,2) }}</td>
+    <td class="highlight">₹ <?php echo e(number_format($invoice->total_amount,2)); ?></td>
     <td>-</td>
     <td>-</td>
-    <td>₹ {{ number_format($invoice->total_amount,2) }}</td>
+    <td>₹ <?php echo e(number_format($invoice->total_amount,2)); ?></td>
 </tr>
     </table>
 
@@ -383,39 +384,40 @@
 <strong>Total Invoice Amount in words</strong><br>
 
 <span style="font-weight:bold;">
-{{ ucwords(\NumberFormatter::create('en_IN', \NumberFormatter::SPELLOUT)->format($invoice->total_amount)) }}
+<?php echo e(ucwords(\NumberFormatter::create('en_IN', \NumberFormatter::SPELLOUT)->format($invoice->total_amount))); ?>
+
 Only
 </span>
 
 </td>
 
 <td class="label">Sub Total</td>
-<td>₹ {{ number_format($invoice->total_amount + $invoice->discount_amount - $invoice->round_off,2) }}</td>
+<td>₹ <?php echo e(number_format($invoice->total_amount + $invoice->discount_amount - $invoice->round_off,2)); ?></td>
 </tr>
 
 <tr>
 <td class="label">Discount</td>
-<td>₹ {{ number_format($invoice->discount_amount,2) }}</td>
+<td>₹ <?php echo e(number_format($invoice->discount_amount,2)); ?></td>
 </tr>
 
 <tr>
 <td class="label">Round Off</td>
-<td>₹ {{ number_format($invoice->round_off,2) }}</td>
+<td>₹ <?php echo e(number_format($invoice->round_off,2)); ?></td>
 </tr>
 
 <tr>
 <td class="label">Grand Total</td>
-<td>₹ {{ number_format($invoice->total_amount,2) }}</td>
+<td>₹ <?php echo e(number_format($invoice->total_amount,2)); ?></td>
 </tr>
 
 <tr>
 <td class="label">Amount Received</td>
-<td>₹ {{ number_format($invoice->amount_received,2) }}</td>
+<td>₹ <?php echo e(number_format($invoice->amount_received,2)); ?></td>
 </tr>
 
 <tr>
 <td class="label">Balance Due</td>
-<td>₹ {{ number_format($invoice->total_amount-$invoice->amount_received,2) }}</td>
+<td>₹ <?php echo e(number_format($invoice->total_amount-$invoice->amount_received,2)); ?></td>
 </tr>
 
 </table>
@@ -423,22 +425,22 @@ Only
     <!-- Footer -->
     <div class="footer-sign">
       Certified that the particular given above are true and correct<br>
-   <strong>For, {{ $invoice->user->businessProfile->business_name ?? '' }}</strong>
+   <strong>For, <?php echo e($invoice->user->businessProfile->business_name ?? ''); ?></strong>
     </div>
 
     <div class="sign-box">
 
-@if(!$setting || $setting->print_signature)
+<?php if(!$setting || $setting->print_signature): ?>
 
-@if($invoice->user->businessProfile && $invoice->user->businessProfile->digital_sign)
+<?php if($invoice->user->businessProfile && $invoice->user->businessProfile->digital_sign): ?>
 
-<img src="{{ asset($invoice->user->businessProfile->digital_sign) }}" width="120">
+<img src="<?php echo e(asset($invoice->user->businessProfile->digital_sign)); ?>" width="120">
 
-@endif
+<?php endif; ?>
 
-<div>{{ $setting->signature_text ?? 'Authorised Signatory' }}</div>
+<div><?php echo e($setting->signature_text ?? 'Authorised Signatory'); ?></div>
 
-@endif
+<?php endif; ?>
 
 </div>
 
@@ -446,3 +448,4 @@ Only
   </div>
 </body>
 </html>
+<?php /**PATH C:\new-invoice.acttconnect.com\new-invoice.acttconnect.com\resources\views/BillTemplates/bill1.blade.php ENDPATH**/ ?>

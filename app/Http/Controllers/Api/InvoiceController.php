@@ -109,16 +109,29 @@ class InvoiceController extends Controller
         return response()->json(['message' => 'Invoice created successfully', 'data' => $invoice], 201);
     }
 
-    public function show($id)
-    {
-        $invoice = Invoice::with('items.item', 'charges', 'customer')->find($id);
+  public function show($id)
+{
+    $invoice = Invoice::with([
+        'items.item',
+        'charges',
+        'customer',
+        'user',
+        'billingDetail',
+        'shippingDetail',
+        'gstDetails'
+    ])->find($id);
 
-        if (!$invoice) {
-            return response()->json(['message' => 'Invoice not found'], 404);
-        }
-
-        return response()->json(['data' => $invoice, 'message' => 'Invoice fetched successfully']);
+    if (!$invoice) {
+        return response()->json([
+            'message' => 'Invoice not found'
+        ], 404);
     }
+
+    return response()->json([
+        'data' => $invoice,
+        'message' => 'Invoice fetched successfully'
+    ]);
+}
 
  
     
